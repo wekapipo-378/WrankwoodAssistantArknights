@@ -11,7 +11,7 @@ WrankwoodAssistantArknights，简称 WAA。
 ## 名字
 
 对外介绍用「蓝卡坞方舟助手」，代码、目录、日志、控制台里用 WAA 或
-WrankwoodAssistantArknights。第一次出现写「蓝卡坞方舟助手（WAA）」。
+WrankwoodAssistantArknights。
 
 ## 开发环境
 
@@ -89,11 +89,11 @@ archive/        归档的一次性脚本和旧产物
 
 这个项目的格式和思路参考了下面几个项目，代码是另写的，没有直接复制：
 
-- ArknightsGameResource（yuanyan3060）：地图、头像、角色表的数据来源，程序运行时从该仓库拉取
-- prts-plus：Excel 轴的表格结构、地图坐标与朝向约定都沿用它
-- ArknightsFrameAssistant（AFC）：全局逻辑帧由费用条相位推算的思路
-- ArknightsCostBarRuler（https://github.com/ZeroAd-06/ArknightsCostBarRuler）：费用条读数与回费模型的参考实现
-- MaaAssistantArknights：界面识别和资源组织方式的参考
+- ArknightsGameResource（https://github.com/yuanyan3060/ArknightsGameResource）：地图、头像、角色表的数据来源，程序运行时从这个仓库拉取
+- prts-plus（https://github.com/jue-ce-zhe/prts-plus）：Excel 轴的表格结构、地图坐标与朝向约定
+- ArknightsFrameAssistant（https://github.com/CloudTracey/arknights-frame-assistant）：用费用条相位推算全局逻辑帧的思路
+- ArknightsCostBarRuler（https://github.com/ZeroAd-06/ArknightsCostBarRuler）：费用条读数与回费模型
+- MaaAssistantArknights（https://github.com/MaaAssistantArknights/MaaAssistantArknights）：界面识别与资源组织方式
 
 如果哪里漏了署名，告诉我补上。
 
