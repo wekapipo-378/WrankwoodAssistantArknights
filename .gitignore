@@ -1,0 +1,30 @@
+# 环境与构建产物
+.venv/
+build/
+release/
+__pycache__/
+*.pyc
+
+# 运行数据：体积大，且含本机运行痕迹（截图、日志、CSV）
+out/
+
+# 个人轴文件，只保留标准模板
+axes/*.xlsx
+!axes/WAA_标准模板.xlsx
+axes/~$*
+
+# 内部文档，不对外
+HANDOFF.md
+TEST_CHECKLIST.md
+WAA_PROGRESS.md
+.workbuddy/
+
+# 第三方参考项目与归档：各自有许可证，不随源码分发
+reference/
+archive/
+
+# PyInstaller 生成的 spec，含本机绝对路径，构建时自动重新生成
+*.spec
+
+# 误克隆进来的空仓库目录
+WrankwoodAssistantArknights/
