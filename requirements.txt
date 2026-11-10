@@ -1,0 +1,35 @@
+# WAA (WrankwoodAssistantArknights) 运行时依赖
+# 生成依据：waa/core/*.py 与 tools/axis_console.py、tools/run_axis.py 的真实 import，
+# 版本号取自开发机 .venv 的 pip freeze（Python 3.13.7 / Windows）。
+#
+# 安装：
+#   py -3.13 -m venv .venv
+#   .venv\Scripts\python.exe -m pip install -r requirements.txt
+#
+# 平台说明：仅支持 Windows（依赖 Win32 窗口句柄、WinRT OCR 与 WGC 抓屏）。
+
+# --- 图像 / 矩阵 ---
+numpy==2.5.4
+opencv-python==5.0.0.93          # import cv2
+
+# --- 抓屏（Windows Graphics Capture）---
+windows-capture==2.0.1           # from windows_capture import WindowsCapture
+
+# --- WinRT 投影（OCR 与位图解码）---
+# 代码直接 import 的命名空间：globalization / graphics.imaging / media.ocr /
+# storage / storage.streams。foundation 与 foundation.collections 由其自动带入。
+winrt-runtime==4.1.0
+winrt-Windows.Globalization==4!10.0.28000.2957
+winrt-Windows.Graphics.Imaging==4!10.0.28000.2957
+winrt-Windows.Media.Ocr==4!10.0.28000.2957
+winrt-Windows.Storage==4!10.0.28000.2957
+winrt-Windows.Storage.Streams==4!10.0.28000.2957
+
+# --- Excel 实时面板 ---
+openpyxl==3.1.5                  # 读写 .xlsx 轴文件与运行报告
+
+# --- Win32 窗口 / 输入（pywin32）---
+pywin32==312                     # win32gui / win32api / win32con / win32com / pythoncom
+
+# --- 图像容器 ---
+pillow==13.0.0                   # from PIL import Image
