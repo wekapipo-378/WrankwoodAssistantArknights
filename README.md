@@ -1,129 +1,128 @@
-# 蓝卡坞方舟助手
+# 蓝卡坞方舟助手 WAA
 
-WrankwoodAssistantArknights（WAA）。
+明日方舟 PC 端的轴写入器、查看器与执行器。攻略者的赛博括约肌。按模板把轴写进 Excel，程序对照全局逻辑帧逐条执行部署、开技能、撤退。
 
-一个明日方舟 PC 端的帧级自动操作工具。你把一套操作写成 Excel 表格，程序照着按帧执行，
-把原本依赖手速和肌肉记忆的打法，变成一份可以反复重放、随手修改、发给别人的文件。
+- 可实时在游戏内显示帧号信息浮窗，适配欠费、气压状态
+- OCR 识别干员信息，实时写回 Excel
+- 用 Excel 公式编辑操作逻辑（如生命值小于 100 时撤退）
+- Excel 实时显示当前地图示意图
+- 随时可暂停并写入新操作
 
-## 解决什么问题
+## 记帧规则
 
-明日方舟的极限关卡经常要求在某个逻辑帧上部署、开技能或撤退，早一帧晚一帧结果就不一样。
-手动打不稳定，录屏只能看不能复用，模拟器自带的按键方案又受限于模拟器本身。
+不读内存，不改游戏文件。全局逻辑帧靠费用条反推：
 
-WAA 的做法是把「什么时候做什么」写成轴：Excel 里一行一个动作，标好第几帧、谁、
-哪个格子、朝哪个方向。执行时程序读这张表，按帧号发指令，同时用画面确认状态对得上。
-同一张轴，今天能过，下周还能过，别人拿去也能过。
+- 冷却初始值为 1（定点编码后存入计数器）。
+- 费用条显示长度和冷却进度成正比。
+- 从费用条读取到的视觉数值，映射回定点冷却计数器。
+- 每一个逻辑帧，冷却计数器固定扣减 69905 / 2^21。
+- 程序反向计算：根据费用条读出的剩余冷却值，反推已经走过多少帧。
+- 这个帧号是估算值，不是游戏原生的逻辑帧真值。
+- 视觉动画和逻辑结算不同步：动画延迟会造成反推帧号和真实逻辑帧存在偏差。
+- EPS=167 判定规则不变：回费由底层逻辑计数器低于EPS触发，不以费用条视觉归零为准。
 
-适合自己写轴、复现别人的攻略、做竞速练习的人。想一键挂机刷材料的话，这个工具不是干这个的。
+局内负费时回费减半，累加器相位原样保留，不重新起锚。回费速度还可以自动在轴里声明的几个档位之间检测切换。
 
-## 怎么知道现在是第几帧
+干员、技能、费用数字靠 OCR 读画面，操作靠模拟触控。本质是看着屏幕替你点鼠标。
 
-不读游戏内存，也不改游戏文件。依据全部来自画面：费用条按固定节奏增长，程序识别它的
-相位变化反推出全局逻辑帧号，再配合 OCR 读干员名、技能状态和费用数字。
-所以它本质上是个「看着屏幕、替你按鼠标」的程序。
+UI 缩放、窗口比例、遮挡都会影响，目前只在 16:9、UI 100%、全屏模式下验证过。
 
-代价是识别依赖画面。UI 缩放、窗口比例、遮挡都会影响判断，目前只在 16:9、UI 100%、
-窗口模式下验证过。
+## 操作方法
 
-## 现在的状态
+- 提前量按轴设置：默认 1X 提前 4 帧、2X 提前 5 帧，可自己在轴里改。
+- 到动作前，程序先暂停在目标帧之前。
+- 点最右待部署卡，进入子弹时间。
+- 子弹时间内逐帧步进：左半继续、右半暂停，或按 166ms 一帧走。
+- 走到目标帧，执行部署、开技能或撤退。
+- 执行完再用画面确认结果，成功才继续下一个动作。
 
-早期预览版 0.1.0。功能还不完善，只在开发机上跑通过，没有主窗口，
-轴格式和控制台命令都可能随时改。文末有开发计划，能看出这个工具打算走到哪一步。
+## 环境
 
-## 开发环境
+Windows 10 / 11，Python 3.13，明日方舟 PC 客户端。
 
-```
+硬性要求：16:9、UI 缩放 100%、窗口模式。必须以管理员权限运行，否则触摸注入会被系统静默丢弃。
+
+## 安装
+
+```bat
 py -3.13 -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements.txt
-waa_console.bat
 ```
 
-waa_console.bat 会自己提权。必须是管理员，否则触摸注入会被系统丢掉，表现就是点了没反应。
+启动 waa_console.bat，会自己请求提权。
 
-启动后默认会打开悬浮帧窗。不想要的话，临时用 WAA.exe --no-showframe 起一次，
-或者在控制台里输入 showframe auto off 永久关掉，showframe auto on 再打开。
+自检环境：
 
-想确认环境有没有问题，跑自检：
-
-```
+```bat
 .venv\Scripts\python.exe tools\axis_console.py --selftest
 ```
 
-它会检查运行环境、第三方依赖、随包资源、out 目录写权限、帧窗程序、文件对话框、OCR 语言包，
-七项都过才算可用。自检不碰游戏，也不会抢单实例锁，控制台开着的时候也能跑。
+## 使用
+
+控制台里 load 或 run 打开一张轴（axes/ 下有示例），进游戏选好关卡进编队，程序自己进图开跑。F5 记当前帧并加一行，F6 暂停或恢复。更多命令看控制台 help。
+
+启动会弹一个悬浮帧窗，显示当前帧。不想要就 showframe auto off，想开回来 showframe auto on。
+
+## 状态
+
+预览版 0.1.0。核心能跑通，没有主窗口。轴格式和控制台命令后面可能改，接口冻结前不会打 1.0.0。
 
 ## 打包
 
-```
+```bat
 build_exe.bat
 build_exe.bat --with-resources
 ```
 
-产物在 release\WAA-v0.1.0，双击 WAA.exe 就能用，目标机器不需要装 Python。
-目录名跟着 waa/__init__.py 里的版本号走，打包时还会顺手生成同名 zip。
-加 --with-resources 会把地图、头像、角色表一起打进去（多 330MB），用户就不用装 Git 去拉数据。
-
-build_exe.bat 只是个壳，真正干活的是 tools\build_release.py。
-
-bat 里不能写中文。cmd 按 OEM 代码页解析 .bat，UTF-8 的中文会让它把行拆错，
-报出来的错误是「'xxx' 不是内部或外部命令」。要加提示就交给 Python 打印。
+产物在 release\WAA-v0.1.0，双击 WAA.exe 即用，目标机不用装 Python。加 --with-resources 把地图、头像、角色表一起打进去（约 330MB），用户不用自己拉数据。
 
 ## 测试
 
-改完代码跑这 15 项，全过再打包：
+tools/ 下有 25 个测试脚本。打包前跑这 15 项回归：
 
-```
+```bat
 for %t in (test_console test_inplace_report test_deploy_f6 test_skill_flow test_action_retry test_avatar_flags test_frame_counter_state test_resolution test_rate_action test_rate_auto test_blind_step synth_neg_test test_map_live test_status_composite test_pause_action) do .venv\Scripts\python.exe tools\%t.py
 ```
 
 ## 目录
 
 ```
-waa/            执行器、帧计数、视觉识别、Excel 面板
-tools/          入口（axis_console / run_axis / frame_window）和 24 个测试
-axes/           轴文件
-out/            运行输出；ArknightsGameResource 和 gamedata 是地图、头像、角色表
-release/        打包产物（WAA-v<版本>/ 和同名 zip）
-packaging/      面向用户的说明，以及打包时要用的文件
-reference/      开发时参考的项目（MAA、prts-plus、AFC 等），运行时不读
-archive/        归档的一次性脚本和旧产物
+waa/        执行器、帧计数、视觉识别、Excel 面板
+tools/      入口和测试脚本
+axes/       轴文件
+out/        运行输出、随包资源
+release/    打包产物
+archive/    归档的一次性脚本和旧产物
 ```
 
 ## 计划
 
-按优先级从高到低，顺序大致是这样：
+按优先级从高到低：
 
-1. 脱离费用条依赖。现在帧号靠费用条相位推算，遇到无回费或者界面挡住费用条的情况就失效，
-   想换成不依赖单一视觉特征的算法。
-2. 提升自动操作效率。压缩每步之间的等待和重试，能并行准备的动作提前到前面的帧。
-3. 完善报错信息。现在的提示偏内部视角，要改成能直接说清哪一步、为什么、用户该做什么。
-4. 自动进图。省掉手动选关、点开始的步骤。
-5. 主窗口。控制台之外给一个正式界面，降低上手门槛。
-6. 模拟器支持。目前只支持 PC 客户端，模拟器的分辨率和渲染差异要单独适配。
-7. 敌人路径演算。按出怪路线预判，而不是只执行写死的动作序列。
+1. 脱离费用条依赖 — 现在帧号靠费用条相位反推，无回费或费用条被挡住就失效，想换成不依赖单一视觉特征的算法。
+2. 提高自动操作效率 — 压缩每步之间的等待和重试，能并行准备的动作提前到前面的帧。
+3. 完善报错 — 现在的提示偏内部视角，要改成能说清哪一步、为什么、用户该做什么。
+4. 自动进图 — 省掉手动选关、点开始。
+5. 主窗口 — 控制台之外给一个正式界面，降低上手门槛。
+6. 模拟器支持 — 现在只支持 PC 客户端，模拟器的分辨率和渲染差异要单独适配。
+7. 敌人路径演算 — 将查看出怪路线功能整合进此工具
 
 ## 致谢
 
-这个项目的格式和思路参考了下面几个项目，代码是另写的，没有直接复制：
+格式和思路参考了下面几个项目，代码是另写的：
 
-- ArknightsGameResource（https://github.com/yuanyan3060/ArknightsGameResource）：地图、头像、角色表的数据来源，程序运行时从这个仓库拉取
-- prts-plus（https://github.com/jue-ce-zhe/prts-plus）：Excel 轴的表格结构、地图坐标与朝向约定
-- ArknightsFrameAssistant（https://github.com/CloudTracey/arknights-frame-assistant）：用费用条相位推算全局逻辑帧的思路
-- ArknightsCostBarRuler（https://github.com/ZeroAd-06/ArknightsCostBarRuler）：费用条读数与回费模型
-- MaaAssistantArknights（https://github.com/MaaAssistantArknights/MaaAssistantArknights）：界面识别与资源组织方式
+- [ArknightsGameResource](https://github.com/yuanyan3060/ArknightsGameResource) — 地图、头像、角色表数据
+- [prts-plus](https://github.com/jue-ce-zhe/prts-plus) — Excel 轴结构、坐标与朝向约定
+- [ArknightsFrameAssistant](https://github.com/CloudTracey/arknights-frame-assistant) — 费用条相位推帧
+- [ArknightsCostBarRuler](https://github.com/ZeroAd-06/ArknightsCostBarRuler) — 费用条读数与回费模型
+- [MaaAssistantArknights](https://github.com/MaaAssistantArknights/MaaAssistantArknights) — 界面识别与资源组织
 
-如果哪里漏了署名，告诉我补上。
+## 声明
 
-## 免责
-
-仅供学习和个人使用。用它跑自动化可能违反游戏用户协议，账号风险自己承担。
-本项目不读取游戏内存、不修改游戏文件，但也不对任何封号或数据损失负责。
-与鹰角网络及上述参考项目的作者均无关联。
+仅供学习交流，请勿用于商业用途。用自动化跑图可能违反游戏用户协议，风险自负。本工具不读内存、不改文件，也不对封号或数据损失负责，仅用于帧记录、时序分析、操作日志复盘，供学习研究使用。
 
 ## 许可证
 
-MIT。见 LICENSE 文件。
+[MIT](LICENSE)
 
-作者：威猛先生（GitHub @wekapipo-378）。
-
-
+作者：威猛先生（[@wekapipo-378](https://github.com/wekapipo-378)）
