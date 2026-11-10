@@ -112,10 +112,12 @@ archive/    归档的一次性脚本和旧产物
 格式和思路参考了下面几个项目，代码是另写的：
 
 - [ArknightsGameResource](https://github.com/yuanyan3060/ArknightsGameResource) — 地图、头像、角色表数据
-- [prts-plus](https://github.com/jue-ce-zhe/prts-plus) — Excel 轴结构、坐标与朝向约定
-- [ArknightsFrameAssistant](https://github.com/CloudTracey/arknights-frame-assistant) — 费用条相位推帧
-- [ArknightsCostBarRuler](https://github.com/ZeroAd-06/ArknightsCostBarRuler) — 费用条读数与回费模型
+- [prts-plus](https://github.com/jue-ce-zhe/prts-plus) — Excel 轴结构、坐标与朝向约定。本项目的灵感来源
+- [ArknightsFrameAssistant](https://github.com/CloudTracey/arknights-frame-assistant) — 过帧步进、暂停选人、触摸注入的操作方式
+- [ArknightsCostBarRuler](https://github.com/ZeroAd-06/ArknightsCostBarRuler) — 费用条读数、帧号反推
 - [MaaAssistantArknights](https://github.com/MaaAssistantArknights/MaaAssistantArknights) — 界面识别与资源组织
+
+特别感谢神入攻略组的各位，感谢大家在机制、时序相关问题上耐心解答，为本项目的开发提供了重要支持。
 
 ## 声明
 
